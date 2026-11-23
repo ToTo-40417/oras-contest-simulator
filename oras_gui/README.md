@@ -1,6 +1,6 @@
 # ORAS コンテスト戦略シミュレーター GUI
 
-ZIPを展開してから、お使いのOSの起動ファイルをダブルクリックしてください。Python 3.10以降が必要です。
+ZIPを展開してから、お使いのOSの起動ファイルをダブルクリックしてください。Python 3.11以降が必要です。
 
 - macOSは `Start ORAS.command`
 - Windowsは `Start ORAS.bat`

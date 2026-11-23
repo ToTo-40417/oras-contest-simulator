@@ -16,3 +16,11 @@ ORAS コンテスト戦略シミュレーターは独立した非公式ファン
 | PokéAPI | 図鑑番号、技番号、ポケモン名、技名の照合 | [公開CSV](https://github.com/PokeAPI/pokeapi/tree/master/data/v2/csv) · [同梱ライセンス](oras_contest/data/LICENSE.pokeapi) |
 | RFC 8682 | TinyMT32の仕様と参照ベクトル | [RFC](https://www.rfc-editor.org/rfc/rfc8682.html) · [同梱ライセンス](oras_contest/data/LICENSE.rfc8682) |
 | Altissimo、Bulbapedia | NPCの出場条件、得点、技枠の参照 | [Altissimoの出場者表](https://altissimo1.github.io/Main-Series/ORAS/contest-opponents.html) · [Bulbapediaの出場者一覧](https://bulbapedia.bulbagarden.net/wiki/List_of_Contest_opponents_(Generation_VI)) |
+
+### Ribbon Helper 由来データの範囲
+
+`oras_contest/data/moves.json`、`effects.json`、`species.json`、`forms.json` の Ribbon Helper 由来部分と、その変換・補正部分は GPL-3.0 の扱いとします。ルートの非商用条件は、これらをGPLの条件で利用・再配布する権利に適用されません。混在する PokéAPI 由来部分には同梱のBSD通知も適用されます。
+
+2026年11月23日の変換では、公開データをローカルJSONに正規化し、技・種族の名前と番号を照合しました。技の分類名を統一し、コンボ2組と妨害値1件を補正しました。技の説明文は削除しました。習得表は種族とフォームに分けて収録しています。元データの取得リビジョンと差分の再検査は [公開候補の監査記録](docs/release-audit.md) を参照してください。
+
+NPC表は Altissimo の公開表を参照して作成し、Bulbapediaで照合した得点2件を採用しています。NPCの技枠順は4件を補正し、ニックネームは収録していません。これらの出典表示は原権利者の許諾取得を意味しません。

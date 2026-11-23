@@ -7,6 +7,7 @@ import sys
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from threading import BoundedSemaphore
 
 from oras_contest import catalog
 from oras_contest.__main__ import MEGA_ELIGIBLE
@@ -20,6 +21,30 @@ ASSETS = {
     "/style.css": ("style.css", "text/css; charset=utf-8"),
     "/app.js": ("app.js", "text/javascript; charset=utf-8"),
 }
+
+
+class LocalServer(ThreadingHTTPServer):
+    def __init__(self):
+        super().__init__(("127.0.0.1", 0), Handler)
+        self.simulation_slot = BoundedSemaphore(1)
+        self.connection_slots = BoundedSemaphore(16)
+
+    def process_request(self, request, client_address):
+        if not self.connection_slots.acquire(blocking=False):
+            self.shutdown_request(request)
+            return
+        try:
+            request.settimeout(10)
+            super().process_request(request, client_address)
+        except Exception:
+            self.connection_slots.release()
+            raise
+
+    def process_request_thread(self, request, client_address):
+        try:
+            super().process_request_thread(request, client_address)
+        finally:
+            self.connection_slots.release()
 
 
 def options():
@@ -115,6 +140,9 @@ class Handler(BaseHTTPRequestHandler):
         except (ValueError, KeyError, TypeError):
             self.json_reply(400, {"error": "入力を確認してください。"})
             return
+        if not self.server.simulation_slot.acquire(blocking=False):
+            self.json_reply(503, {"error": "別の計算を実行中です。完了してから再試行してください。"})
+            return
         try:
             result = subprocess.run(
                 [sys.executable, "-B", "-m", "oras_contest", *args], cwd=ROOT,
@@ -123,6 +151,8 @@ class Handler(BaseHTTPRequestHandler):
         except subprocess.TimeoutExpired:
             self.json_reply(503, {"error": "計算が時間内に終わりませんでした。試行回数を減らしてください。"})
             return
+        finally:
+            self.server.simulation_slot.release()
         if result.returncode:
             self.json_reply(422, {"error": "ポケモン、技、持ち物の組み合わせを確認してください。"})
         else:
@@ -130,7 +160,7 @@ class Handler(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    with ThreadingHTTPServer(("127.0.0.1", 0), Handler) as server:
+    with LocalServer() as server:
         url = f"http://127.0.0.1:{server.server_port}/"
         print(url, flush=True)
         if "--no-browser" not in sys.argv[1:]:
