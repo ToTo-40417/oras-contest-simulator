@@ -1,0 +1,11 @@
+*.3ds
+*.cci
+*.cia
+*.cxi
+.DS_Store
+__pycache__/
+*.pyc
+
+# Local release archives
+oras-contest-gui.zip
+oras-contest-github-ready.zip

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ORAS コンテスト戦略シミュレーター</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+<main>
+  <header><p>ポケットモンスター オメガルビー・アルファサファイア</p><h1>コンテスト戦略シミュレーター</h1></header>
+  <form id="settings">
+    <section>
+      <h2>出場条件</h2>
+      <div class="fields">
+        <label>種目<select id="category"></select></label>
+        <label>ランク<select id="rank"></select></label>
+        <label>ストーリー進行<select id="progress">
+          <option value="early">コンテスト解禁直後</option>
+          <option value="before-lisia">ルチア初戦の解禁前</option>
+          <option value="lisia">ルチア初戦</option>
+          <option value="wallace">ルチア初戦で優勝後</option>
+          <option value="rematch">ミクリのイベント終了後</option>
+        </select></label>
+        <label class="check"><input id="hall" type="checkbox">殿堂入り済み</label>
+      </div>
+    </section>
+    <section>
+      <h2>ポケモン</h2>
+      <div class="fields">
+        <label>名前で絞り込む<input id="species-search" type="search" placeholder="ひらがな・カタカナ・英語" autocomplete="off"></label>
+        <label>ポケモン<select id="species" required disabled></select></label>
+        <label>持ち物<select id="item"><option value="none">なし</option><option value="scarf">バンダナ</option><option value="mega">メガストーン</option></select></label>
+        <label id="scarf-field" hidden>バンダナの種目<select id="scarf"></select></label>
+      </div>
+      <div id="conditions" class="turn-grid"></div>
+      <button id="max" class="plain" type="button">全コンディションを最大にする</button>
+    </section>
+    <section>
+      <h2>アピールする技</h2>
+      <div id="turns" class="turn-grid"></div>
+      <label id="rayquaza" class="check" hidden><input id="dragon" type="checkbox">ガリョウテンセイを覚えている</label>
+    </section>
+    <div class="actions">
+      <label>試行回数<select id="trials"><option value="1000">1,000回</option><option value="5000">5,000回</option><option value="10000">10,000回</option></select></label>
+      <button id="run" type="submit" disabled>計算する</button>
+    </div>
+    <p id="status" role="status"></p>
+  </form>
+  <section id="results" aria-labelledby="results-title" hidden>
+    <div class="results-header"><h2 id="results-title" tabindex="-1">結果</h2><button id="download" class="plain" type="button">JSONを保存</button></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th scope="col">種目</th><th scope="col">ランク</th><th scope="col">1位</th><th scope="col">2位</th><th scope="col">3位</th><th scope="col">4位</th><th scope="col">ルチア出場率</th><th scope="col">主人公1位・ルチア4位</th><th scope="col">ルチア出場時の達成率</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+  </section>
+</main>
+</body>
+</html>
