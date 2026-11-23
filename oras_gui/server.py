@@ -144,8 +144,10 @@ class Handler(BaseHTTPRequestHandler):
             self.json_reply(503, {"error": "別の計算を実行中です。完了してから再試行してください。"})
             return
         try:
+            command = ([sys.executable, "--simulate-worker"] if getattr(sys, "frozen", False)
+                       else [sys.executable, "-B", "-X", "utf8", "-m", "oras_contest"])
             result = subprocess.run(
-                [sys.executable, "-B", "-m", "oras_contest", *args], cwd=ROOT,
+                [*command, *args], cwd=ROOT,
                 capture_output=True, timeout=120, check=False,
             )
         except subprocess.TimeoutExpired:
@@ -159,7 +161,7 @@ class Handler(BaseHTTPRequestHandler):
             self.reply(200, "application/json; charset=utf-8", result.stdout)
 
 
-if __name__ == "__main__":
+def main():
     with LocalServer() as server:
         url = f"http://127.0.0.1:{server.server_port}/"
         print(url, flush=True)
@@ -169,3 +171,7 @@ if __name__ == "__main__":
             server.serve_forever()
         except KeyboardInterrupt:
             pass
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,57 @@
+name: Windows portable build
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/windows.yml'
+      - 'oras_contest/**'
+      - 'oras_gui/**'
+      - 'packaging/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+          architecture: x64
+      - name: Install packager
+        run: python -m pip install PyInstaller==6.16.0
+      - name: Build self-contained EXE
+        run: >
+          python -m PyInstaller --noconfirm --onefile --name ORAS-Contest-Simulator
+          --paths . --add-data "oras_contest/data:oras_contest/data"
+          --add-data "oras_gui/index.html:oras_gui"
+          --add-data "oras_gui/app.js:oras_gui"
+          --add-data "oras_gui/style.css:oras_gui"
+          --add-data "LICENSE:." --add-data "NOTICE.md:."
+          --add-data "$((python -c 'import sys; print(sys.base_prefix)'))/LICENSE.txt:."
+          packaging/windows_entry.py
+      - name: Test bundled EXE
+        timeout-minutes: 2
+        run: |
+          Copy-Item dist/ORAS-Contest-Simulator.exe "$env:RUNNER_TEMP/ORAS-Contest-Simulator.exe"
+          python packaging/check_windows.py "$env:RUNNER_TEMP/ORAS-Contest-Simulator.exe"
+      - name: Prepare distribution
+        run: |
+          New-Item -ItemType Directory -Path portable
+          Copy-Item dist/ORAS-Contest-Simulator.exe,LICENSE,NOTICE.md portable
+          $pythonRoot = python -c 'import sys; print(sys.base_prefix)'
+          Copy-Item "$pythonRoot/LICENSE.txt" portable/LICENSE.python.txt
+          New-Item -ItemType Directory -Path portable/oras_contest/data
+          Copy-Item oras_contest/data/LICENSE.* portable/oras_contest/data
+      - uses: actions/upload-artifact@v4
+        with:
+          name: oras-contest-simulator-windows-x64
+          path: portable/
+          if-no-files-found: error
