@@ -50,7 +50,7 @@ jobs:
           Copy-Item "$pythonRoot/LICENSE.txt" portable/LICENSE.python.txt
           New-Item -ItemType Directory -Path portable/oras_contest/data
           Copy-Item oras_contest/data/LICENSE.* portable/oras_contest/data
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: oras-contest-simulator-windows-x64
           path: portable/
